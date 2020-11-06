@@ -7,12 +7,13 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require("passport-local-mongoose");
-var nodemailer = require('nodemailer');
-var flash = require('express-flash');
-var async = require('async');
-var crypto = require('crypto');
-
+const nodemailer = require('nodemailer');
+const flash = require('express-flash');
+const async = require('async');
+const crypto = require('crypto');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const app = express();
+var findOrCreate = require('mongoose-findorcreate')
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -37,13 +38,15 @@ mongoose.set("useCreateIndex", true);
 
 
 const userSchema = new mongoose.Schema({
-    username: {type: String, unique: true, required:true},
+    username: {type: String, unique: true},
     name: String,
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    googleId: String
 });
 
 userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(findOrCreate);
 
 
 const User = mongoose.model('User', userSchema);
@@ -63,12 +66,34 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-
+passport.use(new GoogleStrategy({
+    clientID: "553569977948-ud500ib1c3t7kvmq37dsdvt2rmh5kb4r.apps.googleusercontent.com",
+    clientSecret: "6yT0aECZyGAkn_AoVHT2pQ5I",
+    callbackURL: "http://localhost:8000/auth/google/secrets",
+    userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
 
 app.get('/', function(req, res){
     res.render('login')
 })
 
+app.get('/auth/google',
+  passport.authenticate('google', {scope: ['profile'] })
+);
+
+app.get('/auth/google/secrets', 
+  passport.authenticate('google', {failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/home');
+  }
+);
 
 app.get('/login', function(req, res){
     res.render('login')
