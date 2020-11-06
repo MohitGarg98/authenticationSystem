@@ -1,0 +1,62 @@
+body
+{
+    background-image: url(./bkimg.jpg);
+    background-size: cover;
+}
+label{
+    font-weight: 500;
+}
+
+a{
+    color: whitesmoke;
+    font-size: 18px;
+}
+
+h3
+{
+    text-align: center;
+}
+#sign
+{
+    margin: 10px 0px;
+}
+.green{
+    border-color: rgb(243, 75, 75);
+    outline: 0;
+    -webkit-box-shadow: inset 0 5px 5px rgba(202, 20, 20, 0.075), 0 0 10px rgba(207, 22, 22, 0.6);
+    box-shadow: inset 0 5px 5px rgba(202, 20, 20,.075), 0 0 10px rgba(207, 22, 22, .6);
+}
+.error
+{
+    color: red;
+}
+#regForm{
+    /* background-color:rgb(75, 150, 200, .6); */
+    background-color: rgb(161, 161, 161, .3);
+    /* opacity: .7; */
+    box-shadow: inset 0 0 0 , 0 0 4px rgb(129, 170, 247);
+    width: 35%;
+    margin: auto;
+    padding: 10px 5px;
+    margin-top: 4%;
+    margin-bottom: 1%;
+}
+.custom-btn{
+    display: block;
+    width: 30%;
+    margin: auto;
+    background-color: #ededed;
+  border: 1px solid #ccc;
+  padding: 10px 30px;
+  border-radius: 3px;
+  cursor: pointer;
+  outline: none;
+  color: black;
+}
+.custom-btn:hover{
+    background-color: #e6e3e3;
+}
+.custom-btn:active {
+    background-color: rgb(158, 157, 157);
+    transform: translateY(2px);
+}
