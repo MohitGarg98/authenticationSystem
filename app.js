@@ -6,6 +6,7 @@ const ejs = require("ejs");
 const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 const passportLocalMongoose = require("passport-local-mongoose");
 const nodemailer = require('nodemailer');
 const flash = require('express-flash');
@@ -52,10 +53,6 @@ userSchema.plugin(findOrCreate);
 const User = mongoose.model('User', userSchema);
 passport.use(User.createStrategy());
 
-// passport.serializeUser(User.serializeUser());
-
-// passport.deserializeUser(User.deserializeUser());
-
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
@@ -90,7 +87,6 @@ app.get('/auth/google',
 app.get('/auth/google/secrets', 
   passport.authenticate('google', {failureRedirect: '/login' }),
   function(req, res) {
-    // Successful authentication, redirect home.
     res.redirect('/home');
   }
 );
@@ -101,6 +97,31 @@ app.get('/login', function(req, res){
 
 app.get('/register', function(req, res){
     res.render('register')
+})
+
+app.get('/resetpassword', function(req, res){
+    res.render('change-password')
+})
+
+app.post('/resetpassword', function(req, res, next){
+  User.findById(req.session.passport.user, function (err, user) {  
+    const oldPassword = req.body.currentPassword;
+    const newPassword = req.body.newPassword;
+    console.log(oldPassword,'110', newPassword);
+
+    user.changePassword(oldPassword, newPassword, function(err) {
+      if(err){
+        console.log('114',err.name,'114');
+        res.send('wrong password');
+        return;
+      }else{
+        res.send('datajbkcjsfdzcm');
+      }
+
+    });
+
+  });
+  
 })
 
 app.get("/home", function(req, res){
@@ -121,31 +142,7 @@ app.get('/forgot', function(req, res){
 })
 
 app.post('/reset', function(req, res, next){
-    // console.log(req.body);
-    // var transporter = nodemailer.createTransport({
-    //     service: 'gmail',
-    //     auth: {
-    //         user: 'magrawal.mca98@gmail.com',
-    //         pass: 'Mohit@1998'
-    //     }
-    // });
-
-    // var mailOptions = {
-    //     from: 'magrawal.mca98@gmail.com',
-    //     to: req.body.email,
-    //     subject: 'Sending Email using Node.js',
-    //     text: 'That was easy!'
-    // };
-
-    // transporter.sendMail(mailOptions, function(error, info){
-    //     if (error) {
-    //         console.log(error);
-    //     } else {
-    //         console.log('Email sent: ' + info.response);
-    //     }
-    // });
-
-    // res.send('send')
+    
   async.waterfall([
     function(done) {
       crypto.randomBytes(20, function(err, buf) {
@@ -157,8 +154,6 @@ app.post('/reset', function(req, res, next){
         console.log(req.body.username);
       User.findOne({ username: req.body.username }, function(err, user) {
         if (!user) {
-        //   req.flash('error', 'No account with that email address exists.');
-
           return res.send('No account with that email address exists.');
         }
 
@@ -201,7 +196,6 @@ app.post('/reset', function(req, res, next){
 app.get('/reset/:token', function(req, res) {
   User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
     if (!user) {
-    //   req.flash('error', 'Password reset token is invalid or has expired.');
       return res.send('Password reset token is invalid or has expired');
     }
     console.log('184', req.user);
@@ -217,25 +211,8 @@ app.post('/reset/:token', function(req, res) {
     function(done) {
       console.log(req.params.token);
 
-
-      // User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }).then(function(sanitizedUser){
-      //   if (sanitizedUser){
-      //       sanitizedUser.setPassword(req.body.password, function(){
-      //           sanitizedUser.save();
-      //           console.log('password reset successful');
-      //       });
-      //   } else {
-      //       console.log('This user does not exist');
-      //   }
-      //   },function(err){
-      //     console.error(err);
-      // })
-
-
-
       User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
         if (!user) {
-        //   req.flash('error', 'Password reset token is invalid or has expired.');
           return res.send('Password reset token is invalid or has expired');
         }
 
@@ -244,18 +221,7 @@ app.post('/reset/:token', function(req, res) {
             console.log('password reset successful');
         });
         
-
-        // user.setPassword(req.body.password);
-
-        // user.setPassword(req.body.password, function(err,user){
-        //   if (err) {
-        //     console.log(err, '205');
-        //   } else { 
-        //       console.log('paswword chaged');
-        //   }
-        // });
         console.log(req.body.password);
-        // user.setPassword(req.body.password, function(err, user){});
 
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
@@ -313,6 +279,7 @@ app.post('/login', function(req, res){
         username: req.body.username,
         password: req.body.password
     });
+    console.log(user,'293');
     req.login(user, function(err){
         if(err){
             console.log(err);
