@@ -6,7 +6,6 @@ const ejs = require("ejs");
 const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
 const passportLocalMongoose = require("passport-local-mongoose");
 const nodemailer = require('nodemailer');
 const flash = require('express-flash');
@@ -16,7 +15,9 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const app = express();
 var findOrCreate = require('mongoose-findorcreate')
 
-app.use(express.static('public'));
+console.log('18',__dirname ,'18');
+app.use(express.static(__dirname + '/public'));
+// app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -30,6 +31,14 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
+
+app.use(flash());
+
+app.use(function(req, res, next) {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.failure_msg = req.flash('failure_msg');
+  next();
+});
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -77,7 +86,11 @@ passport.use(new GoogleStrategy({
 ));
 
 app.get('/', function(req, res){
-    res.render('login')
+    if(req.isAuthenticated()){
+        res.render("home", {name: req.user.name})
+    }else{
+        res.redirect('/login');
+    }
 })
 
 app.get('/auth/google',
@@ -91,16 +104,19 @@ app.get('/auth/google/secrets',
   }
 );
 
-app.get('/login', function(req, res){
-    res.render('login')
-})
-
-app.get('/register', function(req, res){
+app.get('/register', function(req, res){  
     res.render('register')
 })
 
 app.get('/resetpassword', function(req, res){
+
+  if(req.isAuthenticated()){
     res.render('change-password')
+  }else{
+    res.redirect('/login')
+  }
+
+    
 })
 
 app.post('/resetpassword', function(req, res, next){
@@ -112,10 +128,18 @@ app.post('/resetpassword', function(req, res, next){
     user.changePassword(oldPassword, newPassword, function(err) {
       if(err){
         console.log('114',err.name,'114');
-        res.send('wrong password');
+        req.flash(
+                  'failure_msg',
+                  'Current Password is Wrong'
+                );
+        res.redirect('back');
         return;
       }else{
-        res.send('datajbkcjsfdzcm');
+        req.flash(
+                  'success_msg',
+                  'Password Changed Successfully'
+                );
+        res.redirect('/login');
       }
 
     });
@@ -126,7 +150,8 @@ app.post('/resetpassword', function(req, res, next){
 
 app.get("/home", function(req, res){
     if(req.isAuthenticated()){
-        res.render("home")
+      console.log('140',req.user.name,'140');
+        res.render("home",{name: req.user.name})
     }else{
         res.redirect('/login');
     }
@@ -190,7 +215,11 @@ app.post('/reset', function(req, res, next){
   ], function(err) {
     if (err) return next(err);
   });
-  res.send('please check your mail')
+  req.flash(
+          'success_msg',
+          'Please Cheack You Mail..'
+        );
+  res.redirect('back');
 });
 
 app.get('/reset/:token', function(req, res) {
@@ -198,7 +227,6 @@ app.get('/reset/:token', function(req, res) {
     if (!user) {
       return res.send('Password reset token is invalid or has expired');
     }
-    console.log('184', req.user);
     res.render('reset', {
       token: req.params.token
     });
@@ -206,19 +234,26 @@ app.get('/reset/:token', function(req, res) {
 });
 
 app.post('/reset/:token', function(req, res) {
-    console.log('192');
   async.waterfall([
     function(done) {
-      console.log(req.params.token);
 
       User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
         if (!user) {
           return res.send('Password reset token is invalid or has expired');
         }
-
-        user.setPassword(req.body.password, function(){
+        console.log('244');
+        user.setPassword(req.body.newPassword, function(err){
+          // console.log('246');
+          //   user.save();
+          //   console.log('247 password reset successful');
+          console.log('249');
+          if(err){
+            console.log(err,'251');
+          }else{
+            console.log('253');
             user.save();
-            console.log('password reset successful');
+            console.log('255');
+          }
         });
         
         console.log(req.body.password);
@@ -254,43 +289,74 @@ app.post('/reset/:token', function(req, res) {
       });
     }
   ], function(err) {
-    console.log(err, '261');
+    console.log(err, '283');
   });
-  res.render('login');
+  req.flash(
+          'success_msg',
+          'Password Changed Successfully'
+  );
+  res.redirect('/login');
 });
 
 app.post("/register", function(req, res){
 
-    User.register({username: req.body.username, name: req.body.name}, req.body.password, function(err, user) {
-        if (err) {console.log(err); res.redirect("/register"); }
-        else{
-            passport.authenticate("local")(req, res, function(){
-                console.log('reg');
-                return res.redirect("/home")
-            });
-        }
-        
-    });
+  var error = '';
 
-})
-
-app.post('/login', function(req, res){
-    const user = new User({
-        username: req.body.username,
-        password: req.body.password
-    });
-    console.log(user,'293');
-    req.login(user, function(err){
-        if(err){
-            console.log(err);
-        }else{
-            passport.authenticate("local")(req, res, function(){
+  User.findOne({ username: req.body.username }, function(err, user) {
+    if (user) {
+        error = 'Email already exists';
+        res.render('register', {error});
+      }else
+      {
+        User.register({username: req.body.username, name: req.body.name}, req.body.password, function(err, user) {
+          if (err) {console.log(err);}
+          else{
+              passport.authenticate("local")(req, res, function(){
+                req.flash(
+                  'success_msg',
+                  'Registered Successfully'
+                );
                 res.redirect("/home");
-            });
-        }
-    })
-      
+              });
+          }       
+        });
+      }
+  });
 })
+
+// app.post('/login', function(req, res){
+//     const user = new User({
+//         username: req.body.username,
+//         password: req.body.password
+//     });
+//     req.login(user, function(err){
+//         if(err){
+//         }else{
+//             passport.authenticate("local")(req, res, function(){
+//                 res.redirect("/home");
+//             });
+//         }
+//     })
+      
+// })
+
+app.get('/login', function(req, res){
+  if(req.isAuthenticated()){
+      console.log('140',req.user.name,'140');
+        res.render("home",{name: req.user.name})
+  }else{
+    res.render('login', {
+      error: req.flash('error')
+    })
+  }
+})
+
+app.post('/login', passport.authenticate('local', {
+    successRedirect: '/home',
+    failureRedirect: '/login',
+    failureFlash: {type: 'error', message: 'Invalid username or password.'}
+  })
+);
 
 
 app.listen(8000, function() {

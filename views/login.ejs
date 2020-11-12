@@ -1,6 +1,13 @@
-
-<form name="reg-form" id="regForm" action="/login" method="POST">
+<form name="form" id="form" action="/login" method="POST">
     <h3>Sign In</h3>
+    <% if(typeof error != 'undefined' && error.length != 0){ %> 
+        <div class="alert alert-warning alert-dismissible fade show flashMsg" role="alert">
+            <%= error %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    <% } %>
     <div class="form-group">
         <label for="exampleInputEmail1">Email address:</label>
         <input type="email" name="username" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" autocomplete="off">
@@ -13,9 +20,13 @@
     </div>
     <input type="submit" class="custom-btn" value="Sign In" id="submitButton">
     <p id="sign">New User ? <a href="/register">Sign Up</a></p>
-    <a href="/forgot">Forgot Password</a>
-    <a href="/auth/google">Login With Google</a>
+    <a href="/forgot">Forgot Password ?</a>
 </form>
+
+<button id="socialButton">
+    <i class="fab fa-google"></i>
+    <a href="/auth/google">Login With Google</a>
+</button>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
     integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
@@ -24,3 +35,16 @@
     integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
     crossorigin="anonymous"></script>
 <script src="./js/login.js"></script>
+
+<script>
+    <% if(success_msg && success_msg != ''){ %>
+        new Noty({
+            theme: 'relax',
+            text: "<%= success_msg %>",
+            type: 'success',
+            layout: 'topRight',
+            timeout: 2500
+        }).show();
+    <% } %>
+</script>
+  

@@ -3,20 +3,17 @@ var exampleInputEmail1 = document.getElementById('exampleInputEmail1');
 var exampleInputPassword1 = document.getElementById('exampleInputPassword1');
 var exampleInputCPassword1 = document.getElementById('exampleInputCPassword1');
 var exampleInputEmail2 = document.getElementsByTagName('input');
-var regForm = document.getElementById('regForm')
+var form = document.getElementById('form')
 
-console.log('hi');
-console.log(exampleInputEmail2);
-exampleInputName1.onkeypress = xyz(exampleInputName1);
-exampleInputEmail1.onkeypress = xyz(exampleInputEmail1);
-exampleInputPassword1.onkeypress = xyz(exampleInputPassword1);
-exampleInputCPassword1.onkeypress = xyz(exampleInputCPassword1);
-regForm.onsubmit = validateForm;
+exampleInputName1.onkeypress = removeRedBorder(exampleInputName1);
+exampleInputEmail1.onkeypress = removeRedBorder(exampleInputEmail1);
+exampleInputPassword1.onkeypress = removeRedBorder(exampleInputPassword1);
+exampleInputCPassword1.onkeypress = removeRedBorder(exampleInputCPassword1);
+form.onsubmit = validateForm;
 
-function xyz(id) {
+function removeRedBorder(id) {
     return function(){
         document.getElementById(id.id).className = 'form-control';
-        // console.log(document.forms["reg-form"]['email']);
         document.getElementById(id.name).innerHTML = ""
     }
 }
@@ -25,9 +22,9 @@ function validateForm(e) {
   var names = ['name', 'username', 'password', 'cpassword'];
   var error = false;
   names.forEach(function(el) {
-    var val = document.forms["reg-form"][el].value;
+    var val = document.forms["form"][el].value;
     if (val == null || val == "") {
-      document.forms["reg-form"][el].classList.add('green');
+      document.forms["form"][el].classList.add('red');
       if(el === 'cpassword'){
           document.getElementById(el).innerHTML = "***confirm password must be filled out";
       }else{
@@ -39,7 +36,7 @@ function validateForm(e) {
     if(exampleInputPassword1.value !== exampleInputCPassword1.value)
     {
         document.getElementById('cpassword').innerHTML = "***password doesn't match";
-        document.forms["reg-form"]['cpassword'].classList.add('green');
+        document.forms["form"]['cpassword'].classList.add('red');
         error = true;
     }
   if (error) return false;

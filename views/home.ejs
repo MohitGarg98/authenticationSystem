@@ -1,3 +1,16 @@
-<h1>Welcome to Our Website</h1>
+<h1>Welcome <%= name %></h1>
 <a href="/logout">Logout</a><br/>
 <a href="/resetpassword">Reset Password</a>
+
+<script>
+    <% if(success_msg && success_msg != ''){ %>
+        new Noty({
+            theme: 'relax',
+            text: "<%= success_msg %>",
+            type: 'success',
+            layout: 'topRight',
+            timeout: 2500
+        }).show();
+    <% } %>
+</script>
+
