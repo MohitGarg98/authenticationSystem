@@ -1,7 +1,5 @@
-form.onsubmit= loginValidate;
 function loginValidate(e)
 {
-  // e.preventDefault();
   var error = false;
     var names = ['username', 'password'];
     names.forEach(function(el) {
@@ -14,3 +12,5 @@ function loginValidate(e)
   });
   if(error){return false;}
 }
+
+form.onsubmit= loginValidate;

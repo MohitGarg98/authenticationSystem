@@ -1,5 +1,3 @@
-form.onsubmit= formValidate;
-
 const cPassword = document.getElementById('cPassword');
 const nPassword = document.getElementById('nPassword');
 const cfPassword = document.getElementById('cfPassword');
@@ -37,3 +35,5 @@ function formValidate(e)
 
   if(error){return false;}
 }
+
+form.onsubmit= formValidate;

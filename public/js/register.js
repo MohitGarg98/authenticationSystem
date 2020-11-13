@@ -9,7 +9,6 @@ exampleInputName1.onkeypress = removeRedBorder(exampleInputName1);
 exampleInputEmail1.onkeypress = removeRedBorder(exampleInputEmail1);
 exampleInputPassword1.onkeypress = removeRedBorder(exampleInputPassword1);
 exampleInputCPassword1.onkeypress = removeRedBorder(exampleInputCPassword1);
-form.onsubmit = validateForm;
 
 function removeRedBorder(id) {
     return function(){
@@ -42,3 +41,4 @@ function validateForm(e) {
   if (error) return false;
 }
 
+form.onsubmit = validateForm;

@@ -11,9 +11,6 @@ function removeRedBorder(id) {
     }
 }
 
-
-form.onsubmit= formValidate;
-
 function formValidate(e)
 {
     var error = false;
@@ -34,3 +31,5 @@ function formValidate(e)
     }
     if(error){return false;}
 }
+
+form.onsubmit= formValidate;
