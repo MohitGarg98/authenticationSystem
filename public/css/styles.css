@@ -18,6 +18,16 @@ h3
     text-align: center;
 }
 
+#display-name{
+    font-family: 'Architects Daughter', cursive;
+    font-size: 50px;
+    color: wheat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .flashMsg
 {
     background-color: rgb(231, 109, 109);
@@ -95,4 +105,23 @@ h3
 .custom-btn:active {
     background-color: rgb(158, 157, 157);
     transform: translateY(2px);
+}
+
+.fa-1x {
+    font-size: 1.5rem;
+}
+.navbar-toggler.toggler-example {
+    cursor: pointer;
+}
+.dark-blue-text {
+    color: #4155a3;
+}
+.dark-pink-text {
+    color: #AC003A;
+}
+.dark-amber-text {
+    color: #ff6f00;
+}
+.dark-teal-text {
+    color: #004d40;
 }

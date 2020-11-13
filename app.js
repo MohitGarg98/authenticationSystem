@@ -51,8 +51,7 @@ const userSchema = new mongoose.Schema({
     username: {type: String, unique: true},
     name: String,
     resetPasswordToken: String,
-    resetPasswordExpires: Date,
-    googleId: String
+    resetPasswordExpires: Date
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -79,7 +78,8 @@ passport.use(new GoogleStrategy({
     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
   },
   function(accessToken, refreshToken, profile, cb) {
-    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+    console.log('82', profile, '82');
+    User.findOrCreate({ username: profile.id, name:  profile.displayName}, function (err, user) {
       return cb(err, user);
     });
   }
@@ -105,7 +105,11 @@ app.get('/auth/google/secrets',
 );
 
 app.get('/register', function(req, res){  
+  if(req.isAuthenticated()){
+        res.redirect("/home")
+  }else{
     res.render('register')
+  }
 })
 
 app.get('/resetpassword', function(req, res){
@@ -243,9 +247,6 @@ app.post('/reset/:token', function(req, res) {
         }
         console.log('244');
         user.setPassword(req.body.newPassword, function(err){
-          // console.log('246');
-          //   user.save();
-          //   console.log('247 password reset successful');
           console.log('249');
           if(err){
             console.log(err,'251');
@@ -300,12 +301,13 @@ app.post('/reset/:token', function(req, res) {
 
 app.post("/register", function(req, res){
 
-  var error = '';
-
   User.findOne({ username: req.body.username }, function(err, user) {
     if (user) {
-        error = 'Email already exists';
-        res.render('register', {error});
+        req.flash(
+                  'failure_msg',
+                  'Email Already Exists'
+                );
+        res.redirect('back');
       }else
       {
         User.register({username: req.body.username, name: req.body.name}, req.body.password, function(err, user) {
@@ -342,7 +344,6 @@ app.post("/register", function(req, res){
 
 app.get('/login', function(req, res){
   if(req.isAuthenticated()){
-      console.log('140',req.user.name,'140');
         res.render("home",{name: req.user.name})
   }else{
     res.render('login', {
