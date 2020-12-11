@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-const usersControllers = require('../controllers/index').usersControllers;
+const usersControllers = require('../controllers');
 
 router.get('/', usersControllers.firstPage);
 router.get('/login', usersControllers.login);

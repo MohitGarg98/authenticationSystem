@@ -14,13 +14,24 @@ function removeRedBorder(id) {
 function formValidate(e)
 {
     var error = false;
-        var names = ['newPassword', 'confirmPassword'];
-        names.forEach(function(el) {
+
+    var text = nPassword.value;
+    console.log(text.length);
+    var regx = /[^A-Za-z0-9]/;
+    if(!regx.test(text) || text.length < 6){
+        document.getElementById('newPassword').innerHTML = "***password must be greater than 6 and include a special symbol";
+        document.getElementById('newPassword').classList.add('error');
+        document.forms["form"]['newPassword'].classList.add('red');
+        error = true;
+    }
+
+    var names = ['newPassword', 'confirmPassword'];
+    names.forEach(function(el) {
         var val = document.forms["form"][el].value;
         if (val === null || val === "") {
-        document.forms["form"][el].classList.add('red');
-        document.getElementById(el).innerHTML = "***" + el + " must be filled out";
-        error = true;
+            document.forms["form"][el].classList.add('red');
+            document.getElementById(el).innerHTML = "***" + el + " must be filled out";
+            error = true;
         }
     });
     if(nPassword.value !== cfPassword.value)

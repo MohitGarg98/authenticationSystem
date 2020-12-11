@@ -18,8 +18,18 @@ function removeRedBorder(id) {
 }
 
 function validateForm(e) {
-  var names = ['name', 'username', 'password', 'cpassword'];
   var error = false;
+  var text = exampleInputPassword1.value;
+  console.log(text.length);
+  var regx = /[^A-Za-z0-9]/;
+  if(!regx.test(text) || text.length < 6){
+      document.getElementById('password').innerHTML = "***password must be greater than 6 and include a special symbol";
+      document.getElementById('password').classList.add('error');
+      document.forms["form"]['password'].classList.add('red');
+      error = true;
+  }
+  
+  var names = ['name', 'username', 'password', 'cpassword'];
   names.forEach(function(el) {
     var val = document.forms["form"][el].value;
     if (val == null || val == "") {
@@ -32,12 +42,12 @@ function validateForm(e) {
       error = true;
     }
   });
-    if(exampleInputPassword1.value !== exampleInputCPassword1.value)
-    {
-        document.getElementById('cpassword').innerHTML = "***password doesn't match";
-        document.forms["form"]['cpassword'].classList.add('red');
-        error = true;
-    }
+  if(exampleInputPassword1.value !== exampleInputCPassword1.value)
+  {
+      document.getElementById('cpassword').innerHTML = "***password doesn't match";
+      document.forms["form"]['cpassword'].classList.add('red');
+      error = true;
+  }
   if (error) return false;
 }
 

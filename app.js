@@ -5,8 +5,8 @@ const expressLayouts = require('express-ejs-layouts');
 const ejs = require("ejs");
 const mongoose = require('mongoose');
 const session = require('express-session');
-const passport = require('passport');
-const passportLocal = require('./config/passport-local-mongoose');
+// const passport = require('passport');
+const passport = require('./config/passport');
 const flash = require('express-flash');
 const app = express();
 
@@ -42,6 +42,6 @@ mongoose.set("useCreateIndex", true);
 
 app.use('/', require('./routes'));
 
-app.listen(8000, function() {
-  console.log("Server started on port 8000");
+app.listen(3000, function() {
+  console.log("Server started on port 3000");
 });
